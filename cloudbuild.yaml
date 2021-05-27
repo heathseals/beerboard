@@ -1,0 +1,56 @@
+steps:
+# Build image and push to GCR
+- name: 'gcr.io/cloud-builders/docker'
+  id: Build
+  args:
+  - 'build'
+  - '-t'
+  - 'gcr.io/$PROJECT_ID/$_SERVICE_NAME:$SHORT_SHA'
+  - '.'
+- name: 'gcr.io/cloud-builders/docker'
+  id: Push
+  args:
+  - 'push'
+  - 'gcr.io/$PROJECT_ID/$_SERVICE_NAME:$SHORT_SHA'
+
+- name: gcr.io/cloud-builders/gcloud
+  entrypoint: 'bash'
+  args: [ '-c', 'gcloud secrets versions access latest --secret=cloud-strings-dk > /root/.ssh/id_github' ]
+  volumes:
+  - name: 'ssh'
+    path: /root/.ssh
+
+- name: 'gcr.io/cloud-builders/git'
+  entrypoint: 'bash'
+  args:
+  - '-c'
+  - |
+    cat <<EOF >/root/.ssh/config
+    Hostname github.com
+    IdentityFile /root/.ssh/id_github
+    EOF
+    ssh-keyscan -t rsa github.com > /root/.ssh/known_hosts
+    chmod -R 600 /root/.ssh
+  volumes:
+  - name: 'ssh'
+    path: /root/.ssh
+
+- name: gcr.io/cloud-builders/git
+  entrypoint: 'bash'
+  args:
+  - '-c'
+  - |
+    echo "Cloning repo ..."
+    git clone --depth 1 git@github.com:puppetlabs/cloud-strings
+    echo "Updating image tag version ..."
+    cd cloud-strings/argocd/configs
+    sed -i "s|newTag: .*|newTag: $SHORT_SHA|" beerboard-demo/overlays/develop/kustomization.yaml
+    echo "Pushing changes to git config repo ..."
+    git config --global user.name cloud-string-deploy 
+    git config --global user.email ci@puppet.com
+    git add -A
+    git commit -m "Updated with build ${BUILD_ID} from ${REPO_NAME} commit ${COMMIT_SHA}"
+    git push origin main
+  volumes:
+  - name: 'ssh'
+    path: /root/.ssh
