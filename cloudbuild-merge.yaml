@@ -11,7 +11,7 @@ steps:
   id: Push
   args:
   - 'push'
-  - 'gcr.io/$PROJECT_ID/$_SERVICE_NAME:v$SHORT_SHA'
+  - 'gcr.io/$PROJECT_ID/$_SERVICE_NAME:$SHORT_SHA'
 
 - name: gcr.io/cloud-builders/gcloud
   entrypoint: 'bash'
@@ -43,14 +43,14 @@ steps:
     echo "Cloning repo ..."
     git clone --depth 1 git@github.com:puppetlabs/cloud-strings
     echo "Updating image tag version ..."
-    cd cloud-strings
+    cd cloud-strings/argocd/configs
     sed -i "s|newTag: .*|newTag: $SHORT_SHA|" beerboard-demo/overlays/production/kustomization.yaml
     echo "Pushing changes to git config repo ..."
     git config --global user.name cloud-strings-deploy
     git config --global user.email ci@puppet.com
     git add -A
     git commit -m "Updated with build ${BUILD_ID} from ${REPO_NAME} commit ${COMMIT_SHA}"
-    git push origin master
+    git push origin main
   volumes:
   - name: 'ssh'
     path: /root/.ssh
