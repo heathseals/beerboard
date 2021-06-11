@@ -8,8 +8,8 @@ metadata:
 spec:
   project: previews
   source:
-    path: helm
-    repoURL: https://github.com/heathseals/beerboard.git
+    path: charts/beerboard-demo
+    repoURL: git@github.com:puppetlabs/cloud-strings.git
     targetRevision: HEAD
     helm:
       values: |
@@ -17,7 +17,9 @@ spec:
           repository: heathseals/beerboard
           tag: {{.IMAGE_TAG}}
         ingress:
-          host: {{.APP_ID}}.{{.PREVIEW_DOMAIN}}
+          enabled: true
+          hosts:
+           - host: {{.APP_ID}}.{{.PREVIEW_DOMAIN}}
       version: v3
   destination:
     namespace: "{{.APP_ID}}"
