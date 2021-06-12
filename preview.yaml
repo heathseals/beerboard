@@ -18,9 +18,10 @@ spec:
           tag: {{.IMAGE_TAG}}
         ingress:
           enabled: true
-          path: /
           hosts:
            - host: {{.APP_ID}}.{{.PREVIEW_DOMAIN}}
+             paths:
+               - /
       version: v3
   destination:
     namespace: "{{.APP_ID}}"
