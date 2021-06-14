@@ -19,10 +19,9 @@ spec:
         ingress:
           enabled: true
           hosts:
-            - host: {{.APP_ID}}.{{.PREVIEW_DOMAIN}}
-              paths:
-                path:
-                  - /
+           - host: {{.APP_ID}}.{{.PREVIEW_DOMAIN}}
+             paths:
+               - path: /
       version: v3
   destination:
     namespace: "{{.APP_ID}}"
