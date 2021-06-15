@@ -22,6 +22,7 @@ spec:
            - host: {{.APP_ID}}.{{.PREVIEW_DOMAIN}}
              paths:
                - path: /
+                 pathType: ImplementationSpecific
       version: v3
   destination:
     namespace: "{{.APP_ID}}"
