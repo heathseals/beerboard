@@ -18,11 +18,18 @@ spec:
           tag: {{.IMAGE_TAG}}
         ingress:
           enabled: true
+          annotations: 
+            kubernetes.io/ingress.class: nginx
+            kubernetes.io/tls-acme: "true"
           hosts:
            - host: {{.APP_ID}}.{{.PREVIEW_DOMAIN}}
              paths:
                - path: /
                  pathType: ImplementationSpecific
+          tls: 
+             - secretName: {{.APP_ID}}.{{.PREVIEW_DOMAIN}}-tls
+               hosts:
+                 - {{.APP_ID}}.{{.PREVIEW_DOMAIN}}
       version: v3
   destination:
     namespace: "{{.APP_ID}}"
